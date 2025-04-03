@@ -1,6 +1,6 @@
-# House Price Prediction
+# Bangalore House Price Prediction
 
-This project implements a house price prediction system using Linear Regression. It is built as an end-to-end machine-learning project using Flask.
+This project implements a Bangalore house price prediction system using Linear Regression. It is built as an end-to-end machine-learning project using Flask.
 
 ## Overview
 

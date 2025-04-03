@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <style>
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #e0f2f1; /* Soft teal background */
+    margin: 0;
+    padding: 0;
+    color: #444; /* Slightly darker text for readability */
+}
+
+/* Container styling */
+.container {
+    padding: 0px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Card styling */
+.card {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 77, 64, 0.2); /* Teal shadow */
+    background-color: #ffffff; /* White card background */
+    padding: 30px;
+    margin-top: 50px;
+}
+
+/* Card Header styling */
+.card-header {
+    background-color: #26a69a; /* Medium teal */
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 0px 10px 0 0;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+/* Form styling */
+form {
+    padding: 20px;
+    background-color: #f1f8e9; /* Very light green */
+    border-radius: 8px;
+}
+
+.form-group label {
+    font-weight: bold;
+    color: #2e7d32; /* Dark green for labels */
+    margin-bottom: 10px;
+}
+
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #b0bec5; /* Light blue-gray border */
+    padding: 10px;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    transition: border-color 0.3s ease;
+    background-color: #ffffff;
+}
+
+.form-control:focus {
+    border-color: #26a69a; /* Teal focus border */
+    box-shadow: 0 0 5px rgba(38, 166, 154, 0.5);
+}
+
+/* Button styling */
+button.btn {
+    background-color: #26a69a; /* Matching teal button */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    width: 100%;
+    cursor: pointer;
+}
+
+h2 {
+    margin: 10px 0; /* Adjust vertical spacing as needed */
+    padding: 5px;   /* Reduce internal spacing */
+}
+
+
+button.btn:hover {
+    background-color: #00796b; /* Darker teal on hover */
+    transition: background-color 0.3s ease;
+}
+
+/* Output styling */
+.output {
+    text-align: center;
+    margin-top: 20px;
+}
+
+#prediction, #price_per_sqft {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #00796b; /* Dark teal for prediction results */
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .form-group {
+        width: 100%;
+    }
+}
+
+
+    </style>
+    <title>House Price Predictor</title>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="card">
+            <div class="card-header">
+                <h2>House Price Predictor</h2>
+            </div>
+            <div class="card-body">
+                <form id="predictForm" method="post" accept-charset="utf-8">
+                    <div class="form-group">
+                        <label for="location"><b>Select the Location in Bangalore:</b></label>
+                        <select class="form-control" id="location" name="location" required>
+                            {% for location in locations %}
+                                <option value="{{ location }}">{{ location }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bhk"><b>Enter BHK:</b></label>
+                        <input type="text" class="form-control" id="bhk" name="bhk" placeholder="Enter BHK" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bath"><b>Enter Number of Bathrooms:</b></label>
+                        <input type="text" class="form-control" id="bath" name="bath" placeholder="Enter Number of Bathrooms" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="total_sqft"><b>Enter Square Feet:</b></label>
+                        <input type="text" class="form-control" id="total_sqft" name="total_sqft" placeholder="Enter Square Feet" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn">Predict Price</button>
+                    </div>
+                </form>
+                <br>
+                <div class="output">
+                    <h3><span id="prediction"></span></h3>
+                    <h4><span id="price_per_sqft"></span></h4>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    document.getElementById('predictForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var fd = new FormData(document.querySelector('form'));
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '/predict', true);
+        document.getElementById("prediction").innerHTML = "Wait, Predicting Price ...";
+        document.getElementById("price_per_sqft").innerHTML = "";
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+                var prediction = xhr.responseText;  // The predicted price
+                var sqft = parseFloat(document.getElementById('total_sqft').value);  // Square feet input
+                var price_per_sqft = (parseFloat(prediction.replace(/[^0-9.-]+/g,"")) / sqft).toFixed(2);  // Calculate price per sqft
+
+                document.getElementById('prediction').innerHTML = 'Predicted Price: ' + prediction;
+                document.getElementById('price_per_sqft').innerHTML = 'Price per Square Foot: ₹ ' + price_per_sqft;
+            }
+        };
+        xhr.send(fd);
+    });
+</script>
+</body>
+</html>
